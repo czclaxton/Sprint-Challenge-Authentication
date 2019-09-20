@@ -10,6 +10,18 @@ describe("server", () => {
 });
 
 describe("register", () => {
+  beforeEach(async () => {
+    await db("users").truncate();
+  });
+  describe("add()", () => {
+    it("should add a new user", async () => {
+      const userData = { username: "joe", password: "pass" };
+      const user = await Users.add(userData);
+      const users = await db("users");
+      expect(users[0].username).toBe("joe");
+    });
+  });
+
   it("return a 201 status", () => {
     request(router)
       .post("/register")
@@ -20,17 +32,22 @@ describe("register", () => {
   });
 });
 
-describe("register", () => {
-  beforeEach(async () => {
-    await db("users").truncate();
+describe("/login", () => {
+  it("should return a 401", () => {
+    request(router)
+      .post("/login")
+      .send({ name: "asdfasd", password: "asdfl" })
+      .then(res => {
+        expect(res.status).toBe(401);
+      });
   });
-  describe("add()", () => {
-    it("should add a new user", async () => {
-      const userData = { name: "joe", password: "pass" };
-      const user = await Users.add(userData);
-      const users = await db("users");
-      expect(users.length).toBe(1);
-      expect(users[0].name).toBe("joe");
-    });
+
+  it("should return a 500", () => {
+    request(router)
+      .post("/login")
+      .send({ nae: "asdfasd", password: "asdfl" })
+      .then(res => {
+        expect(res.status).toBe(500);
+      });
   });
 });
